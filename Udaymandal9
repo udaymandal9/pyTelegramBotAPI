@@ -1,0 +1,25 @@
+import telebot
+
+bot = telebot.TeleBot("YOUR_BOT_TOKEN")
+
+@bot.message_handler(commands=['delete_channel'])
+def confirm_delete(message):
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(
+        telebot.types.InlineKeyboardButton("✅ Delete Channel", callback_data="confirm_delete"),
+        telebot.types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_delete")
+    )
+    bot.send_message(
+        message.chat.id,
+        "🛑 *Confirm Channel Deletion*\n\nAre you sure you want to *permanently delete* this channel?\nThis action *cannot be undone*.\n\n🔐 _Only the channel creator can perform this action._",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    if call.data == "confirm_delete":
+        bot.answer_callback_query(call.id, "Channel deletion confirmed (demo).")
+        # Your channel deletion logic here
+    elif call.data == "cancel_delete":
+        bot.answer_callback_query(call.id, "Channel deletion cancelled.")
